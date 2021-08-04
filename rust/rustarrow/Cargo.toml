@@ -1,0 +1,16 @@
+[package]
+name = "rustarrow"
+version = "0.1.0"
+authors = ["Liang-Chi Hsieh <viirya@gmail.com>"]
+edition = "2018"
+
+[lib]
+crate-type=["dylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+arrow = { version = "5.0", features = ["prettyprint"] }
+parquet = { version = "5.0", features = ["arrow"] }
+log = "^0.4"
+
