@@ -1,10 +1,13 @@
 ## Microbenchmarking reading parquet file
 
-Parquet reader
+### Parquet reader
 
     cargo run data/simple_data.parquet raw
 
-Arrow reader
+Elapsed: 1.81s
+
+### Arrow reader
 
     cargo run data/simple_data.parquet arrow
 
+Elapsed: 549.59ms
