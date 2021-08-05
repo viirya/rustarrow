@@ -7,6 +7,7 @@ use parquet::record::reader::RowIter;
 use std::env;
 use std::fs::File;
 use std::sync::Arc;
+use std::time::Instant;
 use parquet::record::RowAccessor;
 
 fn main() {
@@ -32,6 +33,8 @@ fn main() {
 }
 
 pub fn read_parquet_file(parquet_filename: &String) {
+    let now = Instant::now();
+
     let file = File::open(parquet_filename).unwrap();
     let file_reader = SerializedFileReader::new(file).unwrap();
 
@@ -43,11 +46,17 @@ pub fn read_parquet_file(parquet_filename: &String) {
         accu1 += row.get_int(0).unwrap() as i64;
         accu2 += row.get_group(3).unwrap().get_int(0).unwrap() as i64;
     }
+
+    let elapsed = now.elapsed();
+    println!("Elapsed: {:.2?}", elapsed);
+
     println!("{}", accu1);
     println!("{}", accu2);
 }
 
 pub fn read_parquet_file_to_arrow(parquet_filename: &String) {
+    let now = Instant::now();
+
     let file = File::open(parquet_filename).unwrap();
     let file_reader = SerializedFileReader::new(file).unwrap();
     let mut arrow_reader = ParquetFileArrowReader::new(Arc::new(file_reader));
@@ -64,4 +73,7 @@ pub fn read_parquet_file_to_arrow(parquet_filename: &String) {
             println!("End of file!");
         }
     }
+
+    let elapsed = now.elapsed();
+    println!("Elapsed: {:.2?}", elapsed);
 }
