@@ -1,4 +1,6 @@
 
+use arrow::array::{Int32Array, StructArray};
+use arrow::datatypes::Int32Type;
 use arrow::record_batch::RecordBatchReader;
 use parquet::arrow::{ParquetFileArrowReader, ArrowReader};
 use parquet::file::reader::SerializedFileReader;
@@ -65,10 +67,22 @@ pub fn read_parquet_file_to_arrow(parquet_filename: &String) {
 
     let record_batch_reader = arrow_reader.get_record_reader(2048).unwrap();
 
+    let mut accu1: i64 = 0;
+    let mut accu2: i64 = 0;
+
     for maybe_record_batch in record_batch_reader {
         let record_batch = maybe_record_batch.unwrap();
         if record_batch.num_rows() > 0 {
-            println!("Read {} records.", record_batch.num_rows());
+            let column1 = record_batch.column(0).as_any().downcast_ref::<Int32Array>();
+            column1.unwrap().values().iter().for_each(|i| {
+                accu1 += *i as i64
+            });
+
+            let column2 = record_batch.column(3).as_any().downcast_ref::<StructArray>();
+
+            column2.unwrap().column(0).as_any().downcast_ref::<Int32Array>().unwrap().values().iter().for_each(|i| {
+                accu2 += *i as i64
+            });
         } else {
             println!("End of file!");
         }
@@ -76,4 +90,7 @@ pub fn read_parquet_file_to_arrow(parquet_filename: &String) {
 
     let elapsed = now.elapsed();
     println!("Elapsed: {:.2?}", elapsed);
+
+    println!("{}", accu1);
+    println!("{}", accu2);
 }
