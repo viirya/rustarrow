@@ -2,8 +2,8 @@
 
 This repo contains simple mircobenchmarking of reading parquet file using
 
-    * rust (parquet, arrow)
-    * c++ (arrow)
-    * Java (parquet, Spark vectorized reader)
+* rust (parquet API, arrow API)
+* c++ (arrow API)
+* Java (parquet API, Spark vectorized reader API)
 
 
