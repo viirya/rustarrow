@@ -81,7 +81,7 @@ pub fn read_parquet_file_to_arrow(parquet_filename: &String) {
 
     println!("Converted arrow schema is: {}", arrow_reader.get_schema().unwrap());
 
-    let record_batch_reader = arrow_reader.get_record_reader(2048).unwrap();
+    let record_batch_reader = arrow_reader.get_record_reader(65536).unwrap();
 
     let mut accu1: i64 = 0;
     let mut accu2: i64 = 0;
