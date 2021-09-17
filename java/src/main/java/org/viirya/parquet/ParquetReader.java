@@ -53,6 +53,9 @@ public class ParquetReader {
         System.out.println(accu2);
       } else if (approach.equals("spark")) {
         read_parquet_using_spark_reader(parquetFilename);
+      } else if (approach.equals("jni")) {
+        String output = ParquetNative.loadParquetFile(parquetFilename);
+        System.out.println(output);
       } else {
         System.out.println("Unknown method: " + approach);
       }
