@@ -6,7 +6,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.arrow.ffi.FFI;
+import org.apache.arrow.ffi.ArrowArray;
+import org.apache.arrow.ffi.ArrowSchema;
+import org.apache.arrow.ffi.FFIDictionaryProvider;
+import org.apache.arrow.memory.RootAllocator;
+import org.apache.arrow.vector.BigIntVector;
+import org.apache.arrow.vector.FieldVector;
+import org.apache.arrow.vector.IntVector;
 import org.apache.parquet.example.data.simple.SimpleGroup;
+import org.apache.spark.sql.vectorized.ArrowColumnVector;
 import org.apache.spark.sql.vectorized.ColumnVector;
 import org.apache.spark.sql.vectorized.ColumnarBatch;
 import org.apache.spark.sql.execution.datasources.parquet.VectorizedParquetRecordReader;
@@ -54,12 +63,47 @@ public class ParquetReader {
       } else if (approach.equals("spark")) {
         read_parquet_using_spark_reader(parquetFilename);
       } else if (approach.equals("jni")) {
+        long startTime = System.currentTimeMillis();
+        long[] arrayAddress = ParquetNative.loadParquetFileAsArrow(parquetFilename);
+        read_parquet_from_native_arrow_arrays(arrayAddress);
+        long endTime = System.currentTimeMillis();
+        System.out.println("Elapsed: " + (endTime - startTime) + "ms");
+      } else if (approach.equals("native")) {
+        long startTime = System.currentTimeMillis();
         String output = ParquetNative.loadParquetFile(parquetFilename);
         System.out.println(output);
+        long endTime = System.currentTimeMillis();
+        System.out.println("Elapsed: " + (endTime - startTime) + "ms");
       } else {
         System.out.println("Unknown method: " + approach);
       }
     }
+  }
+
+  static void read_parquet_from_native_arrow_arrays(long[] arrayAddress) {
+    RootAllocator allocator = new RootAllocator(Long.MAX_VALUE);
+    FFIDictionaryProvider ffiDictionaryProvider = new FFIDictionaryProvider();
+
+    long accu = 0;
+    for (int i = 0; i < arrayAddress.length; i += 2) {
+      try (ArrowSchema arrowSchema = ArrowSchema.wrap(arrayAddress[i + 1]);
+           ArrowArray arrowArray = ArrowArray.wrap(arrayAddress[i])) {
+        FieldVector imported = FFI.importVector(allocator, arrowArray, arrowSchema, ffiDictionaryProvider);
+        int rowCount = imported.getValueCount();
+        System.out.println("rowCount: " + rowCount);
+
+        for (int j = 0; j < rowCount; j++) {
+          if (imported instanceof IntVector) {
+            IntVector vector = ((IntVector) imported);
+            accu += vector.get(j);
+          } else if (imported instanceof BigIntVector) {
+            BigIntVector vector = ((BigIntVector) imported);
+            accu += vector.get(j);
+          }
+        }
+      }
+    }
+    System.out.println("accu1 = " + accu);
   }
 
   static void read_parquet_using_spark_reader(String filePath) throws IOException {

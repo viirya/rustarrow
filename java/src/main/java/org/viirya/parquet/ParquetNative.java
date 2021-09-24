@@ -2,6 +2,7 @@ package org.viirya.parquet;
 
 class ParquetNative {
   public static native String loadParquetFile(String filePath);
+  public static native long[] loadParquetFileAsArrow(String filePath);
 
   static {
     // This actually loads the shared object that we'll be creating.

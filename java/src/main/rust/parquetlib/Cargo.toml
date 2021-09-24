@@ -8,8 +8,8 @@ edition = "2018"
 
 [dependencies]
 jni = "0.19.0"
-arrow = { version = "5.0", features = ["prettyprint"] }
-parquet = { version = "5.0", features = ["arrow"] }
+arrow = { version = "5.4.0", features = ["prettyprint"] }
+parquet = { version = "5.4.0", features = ["arrow"] }
 log = "^0.4"
 
 [lib]
