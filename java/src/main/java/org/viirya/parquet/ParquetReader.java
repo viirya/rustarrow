@@ -65,9 +65,11 @@ public class ParquetReader {
       } else if (approach.equals("jni")) {
         long startTime = System.currentTimeMillis();
         long[] arrayAddress = ParquetNative.loadParquetFileAsArrow(parquetFilename);
+        long endTime1 = System.currentTimeMillis();
+        System.out.println("Elapsed: " + (endTime1 - startTime) + "ms");
         read_parquet_from_native_arrow_arrays(arrayAddress);
-        long endTime = System.currentTimeMillis();
-        System.out.println("Elapsed: " + (endTime - startTime) + "ms");
+        long endTime2 = System.currentTimeMillis();
+        System.out.println("Elapsed: " + (endTime2 - startTime) + "ms");
       } else if (approach.equals("native")) {
         long startTime = System.currentTimeMillis();
         String output = ParquetNative.loadParquetFile(parquetFilename);
